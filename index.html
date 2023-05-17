@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+    <title>Telegram Location Example</title>
+    <style>
+        h2 {
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        input[type="text"],
+        input[type="submit"] {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        
+        input[type="submit"] {
+            background-color: #008CBA;
+            color: #fff;
+            cursor: pointer;
+        }
+        
+        input[type="submit"]:hover {
+            background-color: #00557D;
+        }
+        
+        @media only screen and (max-width: 440px) {
+            form {
+                max-width: 100%;
+            }
+        }
+    </style>
+        
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js" data-app-id="your_app_id_here"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>We need Your Location</h2>
+        <p id="demo"></p>
+        <form id="data-form">
+
+            <label for="email">Description:</label>
+            <input type="text" id="desc" name="desc" required>
+
+            <input type="submit" value="Submit" onclick="getLocationAndSubmit(event)">
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        Telegram.WebApp.ready();
+    
+        function getLocationAndSubmit(event) {
+            event.preventDefault();
+
+            const x = document.getElementById("demo");
+            const descriptionInput = document.getElementById("desc");
+
+            if (descriptionInput.checkValidity()) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else {
+                    const errorMessage = "Geolocation is not supported by this browser.";
+                    x.innerHTML = errorMessage;
+                    sendErrorToBot(errorMessage);
+                }
+            } else {
+                descriptionInput.reportValidity();
+            }
+        }
+    
+        function showPosition(position) {
+            const x = document.getElementById("demo");
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+    
+            x.innerHTML = `Latitude: ${latitude}<br>Longitude: ${longitude}`;
+    
+            const data = JSON.stringify({
+                latitude: latitude,
+                longitude: longitude,
+                desc: document.getElementById("desc").value
+            });
+            Telegram.WebApp.sendData(data);
+            Telegram.WebApp.close();
+        }
+    
+        function showError(error) {
+            const x = document.getElementById("demo");
+            let errorMessage = "";
+    
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "User denied the request for Geolocation.";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "Location information is unavailable.";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "The request to get user location timed out.";
+                    break;
+                case error.UNKNOWN_ERROR:
+                    errorMessage = "An unknown error occurred.";
+                    break;
+                    }
+        x.innerHTML = errorMessage;
+                sendErrorToBot(errorMessage);
+            }
+
+            function sendErrorToBot(errorMessage) {
+                const data = JSON.stringify({ error: errorMessage });
+                Telegram.WebApp.sendData(data);
+                Telegram.WebApp.close();
+            }
+        </script>
+</body>
+</html>
