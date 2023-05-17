@@ -49,6 +49,23 @@
             background-color: #00557D;
         }
         
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            max-width: 200px;
+        }
+        
+        .powered-by {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #888;
+        }
+        
         @media only screen and (max-width: 440px) {
             form {
                 max-width: 100%;
@@ -61,21 +78,22 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            <img src="./assests/logo.png" alt="Logo">
-        </div>
-        <h2>We need Your Location</h2>
-        <p id="demo"></p>
         <form id="data-form">
+            <div class="logo-container">
+                <img class="logo" src="./assests/logo.png" width="150px" alt="Logo">
+            </div>
+            <h2>We need Your Location</h2>
+            <p id="demo"></p>
 
             <label for="email">Description:</label>
             <input type="text" id="desc" name="desc" required>
 
             <input type="submit" value="Submit" onclick="getLocationAndSubmit(event)">
+            <div class="powered-by">
+                Powered by Botmantra-2023
+            </div>
         </form>
-        <div class="powered-by">
-            Powered by Botmantra-2023
-        </div>
+        
     </div>
 
     <script type="text/javascript">
