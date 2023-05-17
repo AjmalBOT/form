@@ -66,6 +66,12 @@
             color: #888;
         }
         
+        .error-message {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+        
         @media only screen and (max-width: 440px) {
             form {
                 max-width: 100%;
@@ -73,7 +79,6 @@
         }
     </style>
         
-    </style>
     <script src="https://telegram.org/js/telegram-web-app.js" data-app-id="your_app_id_here"></script>
 </head>
 <body>
@@ -85,27 +90,35 @@
             <h2>We need Your Location</h2>
             <p id="demo"></p>
 
-            <label for="email">Description:</label>
+            <label for="desc">Description:</label>
             <input type="text" id="desc" name="desc" required>
+            <p class="error-message" id="error-message">Please enter a description.</p>
 
             <input type="submit" value="Submit" onclick="getLocationAndSubmit(event)">
             <div class="powered-by">
                 Powered by Botmantra-2023
             </div>
         </form>
-        
     </div>
 
     <script type="text/javascript">
         Telegram.WebApp.ready();
-    
+
         function getLocationAndSubmit(event) {
             event.preventDefault();
+
+            const submitButton = document.querySelector("input[type='submit']");
+            const loadingMessage = document.getElementById("loading-message");
+            const errorMessageElement = document.getElementById("error-message");
+
+            submitButton.disabled = true; // Disable the button
+            submitButton.value = "Loading..."; // Change the button text
 
             const x = document.getElementById("demo");
             const descriptionInput = document.getElementById("desc");
 
             if (descriptionInput.checkValidity()) {
+                errorMessageElement.style.display = "none"; // Hide error message
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
@@ -114,17 +127,19 @@
                     sendErrorToBot(errorMessage);
                 }
             } else {
-                descriptionInput.reportValidity();
+                errorMessageElement.style.display = "block"; // Show error message
+                submitButton.disabled = false; // Enable the button
+                submitButton.value = "Submit"; // Restore the original button text
             }
         }
-    
+
         function showPosition(position) {
             const x = document.getElementById("demo");
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-    
+
             x.innerHTML = `Latitude: ${latitude}<br>Longitude: ${longitude}`;
-    
+
             const data = JSON.stringify({
                 latitude: latitude,
                 longitude: longitude,
@@ -133,11 +148,11 @@
             Telegram.WebApp.sendData(data);
             Telegram.WebApp.close();
         }
-    
+
         function showError(error) {
             const x = document.getElementById("demo");
             let errorMessage = "";
-    
+
             switch (error.code) {
                 case error.PERMISSION_DENIED:
                     errorMessage = "User denied the request for Geolocation.";
@@ -151,16 +166,16 @@
                 case error.UNKNOWN_ERROR:
                     errorMessage = "An unknown error occurred.";
                     break;
-                    }
-        x.innerHTML = errorMessage;
-                sendErrorToBot(errorMessage);
             }
+            x.innerHTML = errorMessage;
+            sendErrorToBot(errorMessage);
+        }
 
-            function sendErrorToBot(errorMessage) {
-                const data = JSON.stringify({ error: errorMessage });
-                Telegram.WebApp.sendData(data);
-                Telegram.WebApp.close();
-            }
-        </script>
+        function sendErrorToBot(errorMessage) {
+            const data = JSON.stringify({ error: errorMessage });
+            Telegram.WebApp.sendData(data);
+            Telegram.WebApp.close();
+        }
+    </script>
 </body>
 </html>
